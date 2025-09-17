@@ -79,37 +79,85 @@
 </div>
 
 <div id="aboutUsModal" class="modal">
+    <div class="modal-content">
+        <span id="closeModalBtn" class="close-button">&times;</span>
+        <h2>Sobre o Jobb Mapper</h2>
+        <p>O Jobb Mapper é sua ponte direta para o mundo das oportunidades de emprego. Nossa missão é simplificar sua busca por vagas, combinando a precisão da localização com a eficiência de filtros avançados.</p>
+        <p>Mapeamos as vagas disponíveis no portal Gupy, um dos maiores agregadores de talentos do Brasil, diretamente da sua região de interesse, otimizando seu tempo e conectando você às empresas que estão contratando.</p>
     </div>
+</div>
 
 <script>
-    // --- LÓGICA DO MAPA E DOS FILTROS (a maior parte permanece a mesma) ---
+    // --- ALTERAÇÃO FINAL AQUI ---
+    // URL do seu backend no Render. O frontend (Netlify) vai fazer as requisições para este endereço.
+    const backendApiUrl = 'https://jobbmapper-backend.onrender.com/get-cities-in-view'; 
+
     var map = L.map('map').setView([-21.25, -48.32], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
 
-    const backendUrl = 'http://SEU_BACKEND_URL/get-cities-in-view'; // Lembre-se de colocar o URL do seu backend aqui (Render/PythonAnywhere)
-    
-    // (A lógica de busca e de limpar filtros continua a mesma)
-
-    // --- LÓGICA ATUALIZADA DO WHATSAPP ---
-    function setupWhatsAppLink() {
-        const message = encodeURIComponent("Olá! Encontrei esta ferramenta incrível para buscar vagas por mapa. Dê uma olhada!");
-        
-        // USA O SEU NOVO LINK DEFINITIVO
-        const pageUrl = encodeURIComponent("https://jobbmapper.netlify.app");
-        
-        const whatsappUrl = `https://wa.me/?text=${message}%20${pageUrl}`;
-        document.getElementById('whatsappShareLink').href = whatsappUrl;
-    }
-
-    document.addEventListener('DOMContentLoaded', setupWhatsAppLink);
-
-    // --- Colando o resto do JS para garantir ---
     const searchButton = document.getElementById('searchButton');
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
     const messageDiv = document.getElementById('message');
     const aboutUsLink = document.getElementById('aboutUsLink');
     const aboutUsModal = document.getElementById('aboutUsModal');
-    // ...
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    searchButton.addEventListener('click', function() {
+        searchButton.disabled = true; clearFiltersBtn.disabled = true;
+        searchButton.innerText = 'Buscando...';
+        messageDiv.innerText = '';
+        const bounds = map.getBounds();
+        const searchTerm = document.getElementById('jobTitleInput').value;
+        const companyName = document.getElementById('companyNameInput').value;
+        const sortOrder = document.getElementById('sortOrderSelect').value;
+        const isPwd = document.getElementById('isPwdCheckbox').checked;
+        const workplaceTypes = [];
+        document.querySelectorAll('input[name="workplace"]:checked').forEach(checkbox => { workplaceTypes.push(checkbox.value); });
+        
+        fetch(backendApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bounds: bounds, term: searchTerm, company: companyName, sort: sortOrder, pwd: isPwd, workplaceTypes: workplaceTypes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.gupy_url) {
+                window.open(data.gupy_url, '_blank');
+            } else {
+                messageDiv.innerText = data.message || 'Ocorreu um erro.';
+            }
+        })
+        .catch(error => {
+            console.error('Erro de comunicação:', error);
+            messageDiv.innerText = 'Falha na comunicação com o servidor. Verifique o console do navegador (F12).';
+        })
+        .finally(() => {
+            searchButton.disabled = false;
+            clearFiltersBtn.disabled = false;
+            searchButton.innerText = 'Buscar Vagas';
+        });
+    });
+
+    clearFiltersBtn.addEventListener('click', function() {
+        document.getElementById('jobTitleInput').value = '';
+        document.getElementById('companyNameInput').value = '';
+        document.getElementById('sortOrderSelect').selectedIndex = 0;
+        document.getElementById('isPwdCheckbox').checked = false;
+        document.querySelectorAll('input[name="workplace"]').forEach(checkbox => { checkbox.checked = false; });
+        messageDiv.innerText = '';
+    });
+    
+    aboutUsLink.addEventListener('click', (e) => { e.preventDefault(); aboutUsModal.style.display = 'flex'; });
+    closeModalBtn.addEventListener('click', () => { aboutUsModal.style.display = 'none'; });
+    window.addEventListener('click', (e) => { if (e.target == aboutUsModal) { aboutUsModal.style.display = 'none'; } });
+
+    function setupWhatsAppLink() {
+        const message = encodeURIComponent("Olá! Encontrei esta ferramenta incrível para buscar vagas por mapa. Dê uma olhada!");
+        const pageUrl = encodeURIComponent("https://jobbmapper.netlify.app");
+        const whatsappUrl = `https://wa.me/?text=${message}%20${pageUrl}`;
+        document.getElementById('whatsappShareLink').href = whatsappUrl;
+    }
+    document.addEventListener('DOMContentLoaded', setupWhatsAppLink);
 </script>
 </body>
 </html>
