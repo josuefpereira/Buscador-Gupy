@@ -48,4 +48,5 @@ def get_cities_in_view():
     return jsonify({'gupy_url': url_gupy})
 
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=5000)
