@@ -10,7 +10,7 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-    
+
       gtag('config', 'G-3Q2ECC1W45');
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@
         .filter-group label { font-weight: 500; font-size: 0.9rem; display: block; margin-bottom: 0.5rem; color: var(--text-secondary); }
         .input-text, .select-box { width: 100%; padding: 0.75rem 1rem; font-size: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--background-dark); color: var(--text-primary); }
         .checkbox-group label { display: flex; align-items: center; gap: 10px; font-weight: 400; }
-        .button-container { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+        .button-container { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
         .btn { padding: 0.75rem 1.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; border-radius: 8px; transition: all var(--transition-speed); }
         .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
         #searchButton { background-color: var(--primary-accent); color: white; }
@@ -96,10 +96,9 @@
 </div>
 
 <script>
-    // URL do seu backend. Lembre-se de colocar o URL do seu Render/PythonAnywhere aqui quando for publicar.
-    const backendApiUrl = '/get-cities-in-view'; 
+    // URL do seu backend. Lembre-se de colocar o URL do seu Render/PythonAnywhere aqui.
+    const backendApiUrl = 'https://jobbmapper-backend.onrender.com/get-cities-in-view'; 
 
-    // --- LÓGICA DO MAPA COM GEOLOCALIZAÇÃO ---
     const defaultLocation = [-21.25, -48.32];
     const defaultZoom = 10;
     const map = L.map('map');
@@ -122,7 +121,6 @@
     } else {
         map.setView(defaultLocation, defaultZoom);
     }
-    // --- FIM DA LÓGICA DO MAPA ---
 
     const searchButton = document.getElementById('searchButton');
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
